@@ -1,0 +1,22 @@
+﻿@startuml
+class MovieController {
+    - _service:MovieService
+    + GetAllMovies():IEnumerable<Movie>
+}
+
+class MovieService {
+    -  _repository:MovieRepository
+    + GetAllMovies()IEnumerable<Movie>
+}
+
+class MovieRepository {
+    -  _scopeFactory:IServiceScopeFactory
+    +  GetAllMovies():IEnumerable<Movie>
+}
+
+class Movie {
+    + MovieId:int
+    + Title:string
+    + Duration:int
+}
+@enduml
