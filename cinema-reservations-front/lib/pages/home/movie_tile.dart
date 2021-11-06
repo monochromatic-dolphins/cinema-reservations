@@ -17,7 +17,7 @@ class MovieTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, state, _) {
-        final seances = state.seances.where((seance) => seance.movie == movie).toList()
+        final seances = state.seances.where((seance) => seance.movie!.movieId == movie.movieId).toList()
           ..sort((a, b) => a.startTime.compareTo(b.startTime));
         final width = MediaQuery.of(context).size.width;
         final rows = width ~/ 250;
@@ -72,7 +72,7 @@ class MovieTile extends StatelessWidget {
 
   void _navigateToReservationPage(BuildContext context, Seance seance) {
     context.vRouter.to(Routes.reservation, queryParameters: {
-      'id': seance.id.toString(),
+      'id': seance.seanceId.toString(),
     });
   }
 }

@@ -2,44 +2,58 @@ import 'package:cinema_reservations/app/colors.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
 import 'package:cinema_reservations/model/app_state.dart';
 import 'package:cinema_reservations/pages/home/movie_tile.dart';
+import 'package:cinema_reservations/utils/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar.build(context),
-      body: Container(
-        margin: EdgeInsets.all(40),
-        child: Column(
-          children: [
-            Text(
-              'Movies',
-              style: Theme.of(context).textTheme.headline1,
-            ),
-            Consumer<AppState>(
-              builder: (context, state, _) => Expanded(
-                child: ListView.separated(
-                  itemCount: state.movies.length,
-                  itemBuilder: (context, index) => MovieTile(
-                    movie: state.movies[index],
-                  ),
-                  separatorBuilder: (context, index) {
-                    return Divider(
-                      // color: AppColors.divider,
-                      thickness: 1,
-                      height: 1,
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  State<StatefulWidget> createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    runPostFrame(() async =>
+        Provider.of<AppState>(context, listen: false).fetchHomePageData());
   }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: CustomAppBar.build(context),
+        body: Container(
+          margin: EdgeInsets.all(40),
+          child: Column(
+            children: [
+              Text(
+                'Movies',
+                style: Theme.of(context).textTheme.headline1,
+              ),
+              Consumer<AppState>(
+                builder: (context, state, _) => state.isFetching
+                    ? Center(child: CircularProgressIndicator())
+                    : Expanded(
+                        child: ListView.separated(
+                          itemCount: state.movies.length,
+                          itemBuilder: (context, index) => MovieTile(
+                            movie: state.movies[index],
+                          ),
+                          separatorBuilder: (context, index) {
+                            return Divider(
+                              // color: AppColors.divider,
+                              thickness: 1,
+                              height: 1,
+                            );
+                          },
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      );
 }

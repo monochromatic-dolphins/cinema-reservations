@@ -9,12 +9,12 @@ class Role {
 
 @JsonSerializable()
 class User {
-  final int id;
+  final int userId;
   final String login;
   final String role;
 
   User({
-    required this.id,
+    required this.userId,
     required this.login,
     required this.role,
   });

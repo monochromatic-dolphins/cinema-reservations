@@ -6,13 +6,13 @@ part 'seance.g.dart';
 
 @JsonSerializable()
 class Seance {
-  final int id;
-  final Movie movie;
-  final CinemaHall cinemaHall;
+  final int seanceId;
+  final Movie? movie;
+  final CinemaHall? cinemaHall;
   final DateTime startTime;
 
   Seance({
-    required this.id,
+    required this.seanceId,
     required this.movie,
     required this.cinemaHall,
     required this.startTime,

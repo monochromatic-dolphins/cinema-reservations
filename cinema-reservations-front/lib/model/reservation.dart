@@ -6,7 +6,7 @@ part 'reservation.g.dart';
 
 @JsonSerializable()
 class Reservation {
-  final int id;
+  final int reservationId;
   final User user;
   final Seance seance;
   final int row;
@@ -14,7 +14,7 @@ class Reservation {
   final bool isTemporary;
 
   Reservation({
-    required this.id,
+    required this.reservationId,
     required this.user,
     required this.seance,
     required this.row,
@@ -22,7 +22,10 @@ class Reservation {
     required this.isTemporary,
   });
 
-  factory Reservation.fromJson(Map<String, dynamic> json) => _$ReservationFromJson(json);
+  factory Reservation.fromJson(Map<String, dynamic> json) {
+    print(json);
+    return _$ReservationFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$ReservationToJson(this);
 }

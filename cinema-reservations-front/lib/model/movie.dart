@@ -4,12 +4,12 @@ part 'movie.g.dart';
 
 @JsonSerializable()
 class Movie {
-  final int id;
+  final int movieId;
   final String title;
   final int duration;
 
   Movie({
-    required this.id,
+    required this.movieId,
     required this.title,
     required this.duration,
   });

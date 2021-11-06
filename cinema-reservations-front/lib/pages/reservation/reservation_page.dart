@@ -6,6 +6,7 @@ import 'package:cinema_reservations/model/app_state.dart';
 import 'package:cinema_reservations/model/mocks.dart';
 import 'package:cinema_reservations/model/reservation.dart';
 import 'package:cinema_reservations/model/seance.dart';
+import 'package:cinema_reservations/utils/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -24,25 +25,45 @@ class ReservationPage extends StatefulWidget {
 class _ReservationPageState extends State<ReservationPage> {
   List<List<SeatState>>? _selectedSeats;
   int _seatsCount = 0;
+  List<Reservation> _pendingReservations = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    runPostFrame(() async => Provider.of<AppState>(context, listen: false)
+        .fetchReservationPageData());
+  }
 
   @override
   Widget build(BuildContext context) {
     final seanceId = context.vRouter.queryParameters['id'];
-    final reservations =
-        Mocks.reservations.where((reservation) => reservation.seance.id.toString() == seanceId).toList();
 
     return Scaffold(
       appBar: CustomAppBar.build(context),
       body: SingleChildScrollView(
         child: Consumer<AppState>(
           builder: (context, state, _) {
-            final seance = state.seances.firstWhere((element) => element.id.toString() == seanceId);
-            final seatsCount = seance.cinemaHall.seats * seance.cinemaHall.rows;
-            if (_selectedSeats == null) _selectedSeats = _initSelectedSeats(seance, reservations);
+            if (state.isFetching) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            final seance = state.seances.firstWhere(
+                (element) => element.seanceId.toString() == seanceId);
+            final reservations = state.reservations
+                .where((reservation) =>
+                    reservation.seance.seanceId.toString() == seanceId)
+                .toList();
+            final seatsCount =
+                seance.cinemaHall!.seats * seance.cinemaHall!.rows;
+            if (_selectedSeats == null)
+              _selectedSeats = _initSelectedSeats(seance, reservations);
 
             return Center(
               child: Container(
-                  width: MediaQuery.of(context).size.width * 0.4,
+                width: MediaQuery.of(context).size.width * 0.4,
                 child: Column(
                   children: [
                     const SizedBox(height: 36),
@@ -51,7 +72,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       style: Theme.of(context).textTheme.headline1,
                     ),
                     Text(
-                      '${seance.movie.title}, ${_formatDate(seance.startTime)}',
+                      '${seance.movie!.title}, ${_formatDate(seance.startTime)}',
                       style: Theme.of(context).textTheme.headline3,
                     ),
                     const SizedBox(height: 42),
@@ -59,18 +80,20 @@ class _ReservationPageState extends State<ReservationPage> {
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: seance.cinemaHall.seats,
+                        crossAxisCount: seance.cinemaHall!.seats,
                         childAspectRatio: 1.5,
                         mainAxisSpacing: 3,
                         crossAxisSpacing: 3,
                       ),
                       itemCount: seatsCount,
                       itemBuilder: (context, index) {
-                        final currentSeat = index % seance.cinemaHall.seats;
-                        final currentRow = (index / seance.cinemaHall.seats).floor();
+                        final currentSeat = index % seance.cinemaHall!.seats;
+                        final currentRow =
+                            (index / seance.cinemaHall!.seats).floor();
 
                         return InkWell(
-                          onTap: () => _temporaryReservation(currentSeat, currentRow),
+                          onTap: () => _temporaryReservation(context,
+                              seance, currentSeat, currentRow),
                           child: Card(
                             color: _seatColor(currentSeat, currentRow),
                             child: Center(
@@ -78,7 +101,10 @@ class _ReservationPageState extends State<ReservationPage> {
                                 padding: EdgeInsets.all(10),
                                 child: Text(
                                   (index + 1).toString(),
-                                  style: Theme.of(context).textTheme.headline3?.copyWith(color: Colors.white),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline3
+                                      ?.copyWith(color: Colors.white),
                                 ),
                               ),
                             ),
@@ -98,7 +124,7 @@ class _ReservationPageState extends State<ReservationPage> {
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _confirmReservation(context),
                       child: Text('Book tickets'),
                     ),
                   ],
@@ -111,13 +137,16 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  List<List<SeatState>> _initSelectedSeats(Seance seance, List<Reservation> reservations) {
+  List<List<SeatState>> _initSelectedSeats(
+      Seance seance, List<Reservation> reservations) {
     return List.generate(
-      seance.cinemaHall.rows,
+      seance.cinemaHall!.rows,
       (i) => List.generate(
-        seance.cinemaHall.seats,
+        seance.cinemaHall!.seats,
         (j) {
-          if (reservations.firstWhereOrNull((res) => res.row == i && res.seat == j) != null) {
+          if (reservations
+                  .firstWhereOrNull((res) => res.row == i && res.seat == j) !=
+              null) {
             return SeatState.reserved;
           }
           return SeatState.free;
@@ -126,9 +155,22 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  String _formatDate(DateTime date) => DateFormat('dd.MM.yyyy, hh:mm').format(date);
+  String _formatDate(DateTime date) =>
+      DateFormat('dd.MM.yyyy, hh:mm').format(date);
 
-  void _temporaryReservation(int seat, row) {
+  void _temporaryReservation(
+      BuildContext context, Seance seance, int seat, row) async {
+    final result = await Provider.of<AppState>(context, listen: false)
+        .createReservation(seance, seat, row, true);
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Something went wrong. Please refresh the page or try again later')),
+      );
+      return;
+    }
+    _pendingReservations.add(result);
     setState(() {
       switch (_selectedSeats![row][seat]) {
         case SeatState.free:
@@ -143,6 +185,29 @@ class _ReservationPageState extends State<ReservationPage> {
           break;
       }
     });
+  }
+
+  void _confirmReservation(
+      BuildContext context) async {
+    for (var i = 0; i < _pendingReservations.length; i++) {
+      final result = await Provider.of<AppState>(context, listen: false)
+          .confirmReservation(_pendingReservations[i]);
+      if (result == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Something went wrong. Please try again later')),
+        );
+        return;
+      }
+    }
+    showDialog(
+        context: context,
+        builder: (context) => SimpleDialog(
+              title: Text("Reservation finalized"),
+              children: [
+                Text("Reservation confirmed. See you in the cinema!"),
+                ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text("Ok")),
+              ],
+            ));
   }
 
   Color _seatColor(int seat, row) {

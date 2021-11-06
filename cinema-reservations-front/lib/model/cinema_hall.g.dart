@@ -8,7 +8,7 @@ part of 'cinema_hall.dart';
 
 CinemaHall _$CinemaHallFromJson(Map<String, dynamic> json) {
   return CinemaHall(
-    id: json['id'] as int,
+    cinemaHallId: json['cinemaHallId'] as int,
     seats: json['seats'] as int,
     rows: json['rows'] as int,
   );
@@ -16,7 +16,7 @@ CinemaHall _$CinemaHallFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$CinemaHallToJson(CinemaHall instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'cinemaHallId': instance.cinemaHallId,
       'seats': instance.seats,
       'rows': instance.rows,
     };

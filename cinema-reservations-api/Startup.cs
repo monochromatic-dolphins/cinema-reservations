@@ -3,6 +3,7 @@ using cinema_reservations_api.Repository;
 using cinema_reservations_api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,6 +19,13 @@ namespace cinema_reservations_api {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
+
             services.AddControllers();
             services.AddDbContext<InMemoryDbContext>(opt => opt.UseInMemoryDatabase("cinema-reservations"));
             InitializeModelClasses(services);
@@ -28,6 +36,8 @@ namespace cinema_reservations_api {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage(); 
             }
+            app.UseCors("MyPolicy");
+            
             app.UseRouting();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
             var scope = app.ApplicationServices.CreateScope();

@@ -4,12 +4,12 @@ part 'cinema_hall.g.dart';
 
 @JsonSerializable()
 class CinemaHall {
-  final int id;
+  final int cinemaHallId;
   final int seats;
   final int rows;
 
   CinemaHall({
-    required this.id,
+    required this.cinemaHallId,
     required this.seats,
     required this.rows,
   });
