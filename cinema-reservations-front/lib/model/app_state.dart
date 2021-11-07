@@ -118,20 +118,17 @@ class AppState extends ChangeNotifier {
   Future<void> fetchReservationPageData() async {
     _isFetching = true;
     notifyListeners();
-    print('fetching');
 
     _reservations = await _apiClient.getReservations();
     _isFetching = false;
     notifyListeners();
-    print('fetched');
   }
 
   Future<User?> changeUserRole(User user) async {
     final u = User(userId: user.userId,
         login: user.login,
         role: user.role == Role.employee ? Role.regular : Role.employee);
-    final userres = await _apiClient.updateUser(u);
-    print(userres);
+    await _apiClient.updateUser(u);
     final index = _users.indexWhere((element) => element.userId == u.userId);
     _users[index] = u;
     notifyListeners();
@@ -152,7 +149,6 @@ class AppState extends ChangeNotifier {
       await _apiClient.confirmReservation(reservation.reservationId);
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }

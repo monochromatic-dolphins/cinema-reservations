@@ -1,5 +1,6 @@
 import 'package:cinema_reservations/app/colors.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
+import 'package:cinema_reservations/app/routes.dart';
 import 'package:cinema_reservations/model/app_state.dart';
 import 'package:cinema_reservations/model/reservation.dart';
 import 'package:cinema_reservations/model/seance.dart';
@@ -41,12 +42,10 @@ class _ReservationPageState extends State<ReservationPage> {
         child: Consumer<AppState>(
           builder: (context, state, _) {
             if (state.isFetching) {
-              print('loading');
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
-            print('loaded');
             final seance = state.seances.firstWhere((element) => element.seanceId.toString() == seanceId);
             final reservations =
                 state.reservations.where((reservation) => reservation.seance.seanceId.toString() == seanceId).toList();
@@ -150,29 +149,34 @@ class _ReservationPageState extends State<ReservationPage> {
   String _formatDate(DateTime date) => DateFormat('dd.MM.yyyy, hh:mm').format(date);
 
   void _temporaryReservation(BuildContext context, Seance seance, int seat, row) async {
-    setState(() async {
+    switch (_selectedSeats![row][seat]) {
+      case SeatState.free:
+        final result = await Provider.of<AppState>(context, listen: false).createReservation(seance, seat, row, true);
+        if (result == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Something went wrong. Please refresh the page or try again later')),
+          );
+          return;
+        }
+        _pendingReservations.add(result);
+        break;
+      case SeatState.reserved:
+        break;
+      case SeatState.selected:
+        final reservation = _pendingReservations
+            .firstWhere((element) => element.seat == seat && element.row == row);
+        await Provider.of<AppState>(context, listen: false).deleteReservation(reservation);
+        break;
+    }
+    setState(() {
       switch (_selectedSeats![row][seat]) {
         case SeatState.free:
-          print('selecting');
-          final result = await Provider.of<AppState>(context, listen: false).createReservation(seance, seat, row, true);
-          if (result == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Something went wrong. Please refresh the page or try again later')),
-            );
-            return;
-          }
-          _pendingReservations.add(result);
           _selectedSeats?[row][seat] = SeatState.selected;
           _seatsCount++;
           break;
         case SeatState.reserved:
-          print('reserved');
           break;
         case SeatState.selected:
-          print('unselecting');
-          final reservation = _pendingReservations
-              .firstWhere((element) => element.seat == seat && element.row == row && element.seance == seance);
-          await Provider.of<AppState>(context).deleteReservation(reservation);
           _selectedSeats?[row][seat] = SeatState.free;
           _seatsCount--;
           break;
@@ -201,7 +205,7 @@ class _ReservationPageState extends State<ReservationPage> {
               children: [
                 Text("Reservation confirmed. See you in the cinema!"),
                 const SizedBox(height: 24),
-                ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text("Ok")),
+                ElevatedButton(onPressed: () => context.vRouter.to(Routes.main), child: Text("Ok")),
               ],
             ));
   }
