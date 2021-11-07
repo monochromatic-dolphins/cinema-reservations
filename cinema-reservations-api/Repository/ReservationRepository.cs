@@ -60,5 +60,17 @@ namespace cinema_reservations_api.Repository {
             db.SaveChanges();
             return confirmedReservation;
         }
+
+        public bool DeleteReservation(int id) {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
+            var reservation = db.Reservations.Find(id);
+            if (!reservation.IsTemporary) {
+                return false;
+            }
+            db.Reservations.Remove(reservation);
+            db.SaveChanges();
+            return true;
+        }
     }
 }

@@ -2,16 +2,19 @@
 class MovieController {
     - _service:MovieService
     + GetAllMovies():IEnumerable<Movie>
+    + CreateMovie(movie:Movie):ActionResult<Movie>
 }
 
 class MovieService {
     -  _repository:MovieRepository
-    + GetAllMovies()IEnumerable<Movie>
+    + GetAllMovies():IEnumerable<Movie>
+    + CreateMovie(movie:Movie):Movie
 }
 
 class MovieRepository {
     -  _scopeFactory:IServiceScopeFactory
     +  GetAllMovies():IEnumerable<Movie>
+    + CreateMovie(movie:Movie):Movie
 }
 
 class Movie {

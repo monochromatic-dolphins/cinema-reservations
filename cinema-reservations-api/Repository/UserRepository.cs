@@ -29,7 +29,7 @@ namespace cinema_reservations_api.Repository {
         public User Register(string login, string codedPassword) {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
-            return db.Users
+            var newUser =  db.Users
                 .Add(
                     new User {
                         UserId = 0,
@@ -38,6 +38,8 @@ namespace cinema_reservations_api.Repository {
                         Role = "USER"
                     }
                 ).Entity;
+            db.SaveChanges();
+            return newUser;
         }
 
         public User UpdateUser(User user) {

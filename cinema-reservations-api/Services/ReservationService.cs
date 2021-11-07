@@ -23,5 +23,10 @@ namespace cinema_reservations_api.Services {
             var confirmedReservation = _repository.ConfirmReservation(id);
             return confirmedReservation;
         }
+
+        public bool DeleteReservation(int id) {
+            var isSuccess = _repository.DeleteReservation(id);
+            return isSuccess;
+        }
     }
 }

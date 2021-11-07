@@ -29,6 +29,16 @@ namespace cinema_reservations_api.Controllers {
             return BadRequest();
         }
 
+        [HttpDelete]
+        [Route("{id:int}")]
+        public ActionResult<string> DeleteReservation(int id) {
+            var isSuccess = _service.DeleteReservation(id);
+            if (isSuccess) {
+                return Ok();
+            }
+            return BadRequest("This reservation is not temporary!");
+        }
+
         [HttpPost("confirm/{id:int}")]
         public ActionResult<Reservation> ConfirmReservation(int id) {
             var confirmedReservation = _service.ConfirmReservation(id);

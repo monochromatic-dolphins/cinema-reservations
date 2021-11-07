@@ -17,17 +17,6 @@
             }
             return encodedText;
         }
-
-        public static string Decode(string text) {
-            var decodedText = "";
-            foreach (var letter in text) {
-                var letterIndex = Alphabet.IndexOf(letter);
-                if (letterIndex == 0) {
-                    letterIndex = AlphabetLength - 1;
-                }
-                decodedText += Alphabet[letterIndex];
-            }
-            return decodedText;
-        } 
+        
     }
 }
