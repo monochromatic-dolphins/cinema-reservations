@@ -174,6 +174,14 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteReservation(Reservation reservation) async {
+    try {
+      await _apiClient.deleteReservation(reservation.reservationId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<Seance> createSeance(CinemaHall selectedHall,
       Movie selectedMovie,
       DateTime selectedDate,) async {

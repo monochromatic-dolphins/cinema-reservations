@@ -52,6 +52,9 @@ abstract class ApiClient {
   @POST(Apis.reservations)
   Future<Reservation> createReservation(@Body() Reservation reservation);
 
+  @DELETE('${Apis.reservations}/{reservationId}')
+  Future<void> deleteReservation(@Path('reservationId') int reservationId);
+
   @POST('${Apis.reservations}/confirm/{reservationId}')
   Future<void> confirmReservation(@Path('reservationId') int reservationId);
 
