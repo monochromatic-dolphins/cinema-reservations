@@ -13,5 +13,10 @@ namespace cinema_reservations_api.Services {
         public IEnumerable<CinemaHall> GetAllCinemaHalls() {
             return _repository.GetAllCinemaHalls();
         }
+
+        public CinemaHall CreateCinemaHall(CinemaHall cinemaHall) {
+            var createdCinemaHall = _repository.CreateCinemaHall(cinemaHall);
+            return createdCinemaHall;
+        }
     }
 }

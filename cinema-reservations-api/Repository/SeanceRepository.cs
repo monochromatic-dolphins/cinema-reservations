@@ -26,9 +26,15 @@ namespace cinema_reservations_api.Repository {
         public Seance CreateSeance(Seance seance) {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
-            return db.Seances
+            var movie = db.Movies.Find(seance.Movie.MovieId);
+            var cinemaHall = db.CinemaHalls.Find(seance.CinemaHall.CinemaHallId);
+            seance.Movie = movie;
+            seance.CinemaHall = cinemaHall;
+            var createdSeance = db.Seances
                 .Add(seance)
                 .Entity;
+            db.SaveChanges();
+            return createdSeance;
         }
     }
 }

@@ -19,6 +19,17 @@ namespace cinema_reservations_api.Controllers {
         }
 
         [HttpPost]
+        [Route("/users")]
+        public ActionResult<User> UpdateUser(User user) {
+            var updatedUser = _service.UpdateUser(user);
+            if (updatedUser != null) {
+                return Ok(updatedUser);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
         [Route("/login")]
         public ActionResult<LoginResponse> Login(LoginRequest loginRequest) {
             var loginResponse = _service.Login(loginRequest.Login, loginRequest.Password);

@@ -39,5 +39,11 @@ namespace cinema_reservations_api.Repository {
                     }
                 ).Entity;
         }
+
+        public User UpdateUser(User user) {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
+            return db.Users.Update(user).Entity;
+        }
     }
 }

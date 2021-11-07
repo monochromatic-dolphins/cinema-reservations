@@ -26,5 +26,10 @@ namespace cinema_reservations_api.Services {
             var user = _repository.Register(login, codedPassword);
             return user != null ? new LoginResponse(user.UserId, user.Role) : null;
         }
+
+        public User UpdateUser(User user) {
+            var updatedUser = _repository.UpdateUser(user);
+            return updatedUser;
+        }
     }
 }

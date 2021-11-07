@@ -19,5 +19,14 @@ namespace cinema_reservations_api.Repository {
             return db.Movies.ToList();
         }
 
+        public Movie CreateMovie(Movie movie) {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
+            var createdMovie = db.Movies
+                .Add(movie)
+                .Entity;
+            db.SaveChanges();
+            return createdMovie;
+        }
     }
 }

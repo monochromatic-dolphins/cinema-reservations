@@ -13,5 +13,15 @@ namespace cinema_reservations_api.Services {
         public IEnumerable<Reservation> GetAllReservations() {
             return _repository.GetAllReservations();
         }
+
+        public Reservation CreateReservation(Reservation reservation) {
+            var createdReservation = _repository.CreateReservation(reservation);
+            return createdReservation;
+        }
+
+        public Reservation ConfirmReservation(int id) {
+            var confirmedReservation = _repository.ConfirmReservation(id);
+            return confirmedReservation;
+        }
     }
 }

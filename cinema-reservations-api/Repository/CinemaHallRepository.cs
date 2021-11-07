@@ -17,5 +17,13 @@ namespace cinema_reservations_api.Repository {
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
             return db.CinemaHalls.ToList();
         }
+
+        public CinemaHall CreateCinemaHall(CinemaHall cinemaHall) {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
+            var createdCinemaHall = db.CinemaHalls.Add(cinemaHall).Entity;
+            db.SaveChanges();
+            return createdCinemaHall;
+        }
     }
 }

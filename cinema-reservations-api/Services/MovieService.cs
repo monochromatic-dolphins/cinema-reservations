@@ -14,5 +14,10 @@ namespace cinema_reservations_api.Services {
         public IEnumerable<Movie> GetAllMovies() {
             return _repository.GetAllMovies();
         }
+
+        public Movie CreateMovie(Movie movie) {
+            var createdMovie = _repository.CreateMovie(movie);
+            return createdMovie;
+        }
     }
 }

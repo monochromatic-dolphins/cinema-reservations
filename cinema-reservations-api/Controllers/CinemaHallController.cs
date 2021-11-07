@@ -18,5 +18,14 @@ namespace cinema_reservations_api.Controllers {
         public IEnumerable<CinemaHall> GetAllCinemaHalls() {
             return _service.GetAllCinemaHalls();
         }
+
+        [HttpPost]
+        public ActionResult<CinemaHall> CreateCinemaHall(CinemaHall cinemaHall) {
+            var createdCinemaHall = _service.CreateCinemaHall(cinemaHall);
+            if (createdCinemaHall != null) {
+                return Ok(createdCinemaHall);
+            }
+            return BadRequest();
+        }
     }
 }
