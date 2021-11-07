@@ -1,6 +1,8 @@
+import 'package:cinema_reservations/app/app_drawer.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
 import 'package:cinema_reservations/app/theme.dart';
 import 'package:cinema_reservations/model/app_state.dart';
+import 'package:cinema_reservations/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -20,14 +22,17 @@ class _MovieCrudPageState extends State<MovieCrudPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Consumer<AppState>(builder: (context, state, _) => state.user?.role == Role.employee ? CustomDrawer.build(context) : Container()),
       appBar: CustomAppBar.build(context),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.6,
+            height: MediaQuery.of(context).size.height  * 0.9,
+            width: MediaQuery.of(context).size.width * 0.3,
             child: Form(
               key: _formKey,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Add new movie',
@@ -64,7 +69,7 @@ class _MovieCrudPageState extends State<MovieCrudPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 36),
                   ElevatedButton(
                     onPressed: () => _validateAndCreate(),
                     child: Text('Create'),
@@ -82,6 +87,6 @@ class _MovieCrudPageState extends State<MovieCrudPage> {
     if (_formKey.currentState?.validate() == false) {
       return;
     }
-    Provider.of<AppState>(context, listen: false).createMovie(_titleController.text, _durationController.text);
+    Provider.of<AppState>(context, listen: false).createMovie(_titleController.text, int.parse(_durationController.text));
   }
 }

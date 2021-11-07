@@ -1,5 +1,6 @@
+import 'package:cinema_reservations/model/api/login_request.dart';
+import 'package:cinema_reservations/model/api/login_response.dart';
 import 'package:cinema_reservations/model/cinema_hall.dart';
-import 'package:cinema_reservations/model/mocks.dart';
 import 'package:cinema_reservations/model/reservation.dart';
 import 'package:cinema_reservations/model/seance.dart';
 import 'package:cinema_reservations/model/user.dart';
@@ -12,7 +13,7 @@ import 'movie.dart';
 class AppState extends ChangeNotifier {
   ApiClient _apiClient = ApiClient(Dio(), baseUrl: 'http://localhost:5000');
 
-  // ApiClient _apiClient = ApiClient(Dio(), baseUrl: 'http://192.168.0.173');
+  // ApiClient _apiClient = ApiClient(Dio(), baseUrl: 'http://192.168.0.174:5000');
 
   bool _isLoggedIn = false;
 
@@ -22,10 +23,33 @@ class AppState extends ChangeNotifier {
 
   User? get user => _user;
 
-  void logIn() {
+  Future<User?> logIn(String login, String password) async {
+    LoginResponse response;
+    try {
+      response = await _apiClient.login(LoginRequest(login: login, password: password));
+    } catch (e) {
+      return null;
+    }
+
     _isLoggedIn = true;
-    _user = User(userId: 3, login: 'kul', role: Role.employee);
+    _user = User(userId: response.userId, login: login, role: response.role);
     notifyListeners();
+    return _user;
+  }
+
+  Future<User?> register(String login, String password) async {
+    LoginResponse response;
+
+    try {
+      response = await _apiClient.registerUser(LoginRequest(login: login, password: password));
+    } catch (e) {
+      return null;
+    }
+
+    _isLoggedIn = true;
+    _user = User(userId: response.userId, login: login, role: response.role);
+    notifyListeners();
+    return _user;
   }
 
   void logOut() {
@@ -69,14 +93,8 @@ class AppState extends ChangeNotifier {
     _isFetching = true;
     notifyListeners();
 
-    _movies = await _apiClient.getMovies().catchError((_) => () {
-          print('movie');
-          return <Movie>[];
-        }());
-    _cinemaHalls = await _apiClient.getCinemaHalls().catchError((_) => () {
-          print('cinema hall');
-          return <CinemaHall>[];
-        }());
+    _movies = await _apiClient.getMovies();
+    _cinemaHalls = await _apiClient.getCinemaHalls();
     _isFetching = false;
     notifyListeners();
   }
@@ -101,19 +119,18 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> changeUserRole(User user) async {
-    // TODO
+    await _apiClient.updateUser(user);
   }
 
-  void createCinemaHall(String seats, String rows) {
-    // TODO
+  void createCinemaHall(int seats, int rows) async {
+    await _apiClient.createCinemaHall(CinemaHall(cinemaHallId: 0, seats: seats, rows: rows));
   }
 
-  void createMovie(String title, String duration) {
-    // TODO
+  void createMovie(String title, int duration) async {
+    await _apiClient.createMovie(Movie(movieId: 0, title: title, duration: duration));
   }
 
   Future<Reservation?> confirmReservation(Reservation reservation) async {
-    // MISSING: Change reservation to not temporary
     try {
       return await _apiClient.confirmReservation(reservation.reservationId);
     } catch (e) {
@@ -123,7 +140,6 @@ class AppState extends ChangeNotifier {
 
   Future<Reservation?> createReservation(
       Seance seance, int seat, row, bool isTemporary) async {
-    // MISSING: Return null on error
     final reservation = Reservation(
       reservationId: 0,
       user: _user!,

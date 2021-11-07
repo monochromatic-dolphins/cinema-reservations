@@ -1,6 +1,8 @@
+import 'package:cinema_reservations/app/app_drawer.dart';
 import 'package:cinema_reservations/app/colors.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
 import 'package:cinema_reservations/model/app_state.dart';
+import 'package:cinema_reservations/model/user.dart';
 import 'package:cinema_reservations/pages/home/movie_tile.dart';
 import 'package:cinema_reservations/utils/helpers.dart';
 import 'package:flutter/material.dart';
@@ -16,14 +18,13 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    runPostFrame(() async =>
-        Provider.of<AppState>(context, listen: false).fetchHomePageData());
+    runPostFrame(() async => Provider.of<AppState>(context, listen: false).fetchHomePageData());
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        drawer: Consumer<AppState>(builder: (context, state, _) => state.user?.role == Role.employee ? CustomDrawer.build(context) : Container()),
         appBar: CustomAppBar.build(context),
         body: Container(
           margin: EdgeInsets.all(40),

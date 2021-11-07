@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:cinema_reservations/app/colors.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
 import 'package:cinema_reservations/model/app_state.dart';
-import 'package:cinema_reservations/model/mocks.dart';
 import 'package:cinema_reservations/model/reservation.dart';
 import 'package:cinema_reservations/model/seance.dart';
 import 'package:cinema_reservations/utils/helpers.dart';
@@ -29,7 +26,6 @@ class _ReservationPageState extends State<ReservationPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     runPostFrame(() async => Provider.of<AppState>(context, listen: false)
         .fetchReservationPageData());

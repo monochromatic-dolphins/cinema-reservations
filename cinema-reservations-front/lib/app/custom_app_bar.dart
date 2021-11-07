@@ -8,24 +8,32 @@ class CustomAppBar {
   static AppBar build(BuildContext context) {
     return AppBar(
       centerTitle: false,
-      title: Text(
-        'Best Cinema',
-        style: Theme.of(context).textTheme.headline1?.copyWith(color: Colors.white, fontSize: 36),
+      title: InkWell(
+        child: Text(
+          'Best Cinema',
+          style: Theme.of(context).textTheme.headline1?.copyWith(color: Colors.white, fontSize: 36),
+        ),
+        onTap: () => context.vRouter.to(Routes.main),
       ),
-      leading: Icon(Icons.movie),
+      // leading: Icon(Icons.movie),
       backgroundColor: Colors.deepPurple,
       actions: [
         IconButton(
           onPressed: () => context.vRouter.to(Routes.main),
-          icon: Icon(Icons.home),
+          icon: Icon(
+            Icons.home,
+            size: 40,
+          ),
         ),
+        const SizedBox(width: 20),
         IconButton(
           onPressed: () {
             Provider.of<AppState>(context, listen: false).logOut();
             context.vRouter.to(Routes.login);
           },
-          icon: Icon(Icons.logout),
+          icon: Icon(Icons.logout, size: 40,),
         ),
+        const SizedBox(width: 20),
       ],
     );
   }

@@ -174,15 +174,14 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<Reservation> confirmReservation(reservation) async {
+  Future<Reservation> confirmReservation(reservationId) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(reservation.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<Reservation>(
             Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
-                .compose(_dio.options, '/reservations',
+                .compose(_dio.options, '/reservations/confirm/$reservationId',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = Reservation.fromJson(_result.data!);

@@ -42,7 +42,7 @@ abstract class ApiClient {
   Future<List<CinemaHall>> getCinemaHalls();
 
   @POST(Apis.cinemaHall)
-  Future<CinemaHall> createCinemaHall(@Body() CinemaHall reservation);
+  Future<CinemaHall> createCinemaHall(@Body() CinemaHall cinemaHall);
 
   // Reservations
 
@@ -52,8 +52,8 @@ abstract class ApiClient {
   @POST(Apis.reservations)
   Future<Reservation> createReservation(@Body() Reservation reservation);
 
-  @POST(Apis.reservations)
-  Future<Reservation> confirmReservation(@Body() String reservationId);
+  @POST('${Apis.reservations}/confirm/{reservationId}')
+  Future<Reservation> confirmReservation(@Path('reservationId') int reservationId);
 
   // Seances
 

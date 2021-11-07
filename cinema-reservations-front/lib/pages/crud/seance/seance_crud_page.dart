@@ -1,7 +1,9 @@
+import 'package:cinema_reservations/app/app_drawer.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
 import 'package:cinema_reservations/model/app_state.dart';
 import 'package:cinema_reservations/model/cinema_hall.dart';
 import 'package:cinema_reservations/model/movie.dart';
+import 'package:cinema_reservations/model/user.dart';
 import 'package:cinema_reservations/utils/helpers.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,7 @@ class _SeanceCrudPageState extends State<SeanceCrudPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    drawer: Consumer<AppState>(builder: (context, state, _) => state.user?.role == Role.employee ? CustomDrawer.build(context) : Container()),
         appBar: CustomAppBar.build(context),
         body: Consumer<AppState>(
           builder: (context, state, _) => state.isFetching
@@ -37,10 +40,12 @@ class _SeanceCrudPageState extends State<SeanceCrudPage> {
               : SingleChildScrollView(
                   child: Center(
                     child: Container(
-                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: MediaQuery.of(context).size.height  * 0.9,
+                      width: MediaQuery.of(context).size.width * 0.3,
                       child: Form(
                         key: _formKey,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Add new seance',
