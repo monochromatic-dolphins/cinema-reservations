@@ -28,8 +28,7 @@ class _ReservationPageState extends State<ReservationPage> {
   void initState() {
     super.initState();
     Provider.of<AppState>(context, listen: false).startFetching();
-    runPostFrame(() async => Provider.of<AppState>(context, listen: false)
-        .fetchReservationPageData());
+    runPostFrame(() async => Provider.of<AppState>(context, listen: false).fetchReservationPageData());
   }
 
   @override
@@ -48,17 +47,11 @@ class _ReservationPageState extends State<ReservationPage> {
               );
             }
             print('loaded');
-            final seance = state.seances.firstWhere(
-                (element) => element.seanceId.toString() == seanceId);
-            final reservations = state.reservations
-                .where((reservation) =>
-                    reservation.seance.seanceId.toString() == seanceId)
-                .toList();
-            final seatsCount =
-                seance.cinemaHall!.seats * seance.cinemaHall!.rows;
-            if (_selectedSeats == null)
-              _selectedSeats =
-                  _initSelectedSeats(seance, reservations, state.user!.userId);
+            final seance = state.seances.firstWhere((element) => element.seanceId.toString() == seanceId);
+            final reservations =
+                state.reservations.where((reservation) => reservation.seance.seanceId.toString() == seanceId).toList();
+            final seatsCount = seance.cinemaHall!.seats * seance.cinemaHall!.rows;
+            if (_selectedSeats == null) _selectedSeats = _initSelectedSeats(seance, reservations, state.user!.userId);
 
             return Center(
               child: Container(
@@ -87,12 +80,10 @@ class _ReservationPageState extends State<ReservationPage> {
                       itemCount: seatsCount,
                       itemBuilder: (context, index) {
                         final currentSeat = index % seance.cinemaHall!.seats;
-                        final currentRow =
-                            (index / seance.cinemaHall!.seats).floor();
+                        final currentRow = (index / seance.cinemaHall!.seats).floor();
 
                         return InkWell(
-                          onTap: () => _temporaryReservation(
-                              context, seance, currentSeat, currentRow),
+                          onTap: () => _temporaryReservation(context, seance, currentSeat, currentRow),
                           child: Card(
                             color: _seatColor(currentSeat, currentRow),
                             child: Center(
@@ -100,10 +91,7 @@ class _ReservationPageState extends State<ReservationPage> {
                                 padding: EdgeInsets.all(10),
                                 child: Text(
                                   (index + 1).toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline3
-                                      ?.copyWith(color: Colors.white),
+                                  style: Theme.of(context).textTheme.headline3?.copyWith(color: Colors.white),
                                 ),
                               ),
                             ),
@@ -146,8 +134,7 @@ class _ReservationPageState extends State<ReservationPage> {
       (i) => List.generate(
         seance.cinemaHall!.seats,
         (j) {
-          final r = reservations
-              .firstWhereOrNull((res) => res.row == i && res.seat == j);
+          final r = reservations.firstWhereOrNull((res) => res.row == i && res.seat == j);
           if (r != null) {
             if (r.isTemporary && r.user.userId == userId) {
               return SeatState.selected;
@@ -160,31 +147,32 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  String _formatDate(DateTime date) =>
-      DateFormat('dd.MM.yyyy, hh:mm').format(date);
+  String _formatDate(DateTime date) => DateFormat('dd.MM.yyyy, hh:mm').format(date);
 
-  void _temporaryReservation(
-      BuildContext context, Seance seance, int seat, row) async {
-    final result = await Provider.of<AppState>(context, listen: false)
-        .createReservation(seance, seat, row, true);
-    if (result == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Something went wrong. Please refresh the page or try again later')),
-      );
-      return;
-    }
-    _pendingReservations.add(result);
-    setState(() {
+  void _temporaryReservation(BuildContext context, Seance seance, int seat, row) async {
+    setState(() async {
       switch (_selectedSeats![row][seat]) {
         case SeatState.free:
+          print('selecting');
+          final result = await Provider.of<AppState>(context, listen: false).createReservation(seance, seat, row, true);
+          if (result == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Something went wrong. Please refresh the page or try again later')),
+            );
+            return;
+          }
+          _pendingReservations.add(result);
           _selectedSeats?[row][seat] = SeatState.selected;
           _seatsCount++;
           break;
         case SeatState.reserved:
+          print('reserved');
           break;
         case SeatState.selected:
+          print('unselecting');
+          final reservation = _pendingReservations
+              .firstWhere((element) => element.seat == seat && element.row == row && element.seance == seance);
+          await Provider.of<AppState>(context).deleteReservation(reservation);
           _selectedSeats?[row][seat] = SeatState.free;
           _seatsCount--;
           break;
@@ -194,12 +182,10 @@ class _ReservationPageState extends State<ReservationPage> {
 
   void _confirmReservation(BuildContext context) async {
     for (var i = 0; i < _pendingReservations.length; i++) {
-      final result = await Provider.of<AppState>(context, listen: false)
-          .confirmReservation(_pendingReservations[i]);
+      final result = await Provider.of<AppState>(context, listen: false).confirmReservation(_pendingReservations[i]);
       if (!result) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Something went wrong. Please try again later')),
+          SnackBar(content: Text('Something went wrong. Please try again later')),
         );
         return;
       }
@@ -208,13 +194,14 @@ class _ReservationPageState extends State<ReservationPage> {
         context: context,
         builder: (context) => SimpleDialog(
               contentPadding: EdgeInsets.all(25),
-              title: Text("Reservation finalized", style: Theme.of(context).textTheme.headline3,),
+              title: Text(
+                "Reservation finalized",
+                style: Theme.of(context).textTheme.headline3,
+              ),
               children: [
                 Text("Reservation confirmed. See you in the cinema!"),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("Ok")),
+                ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text("Ok")),
               ],
             ));
   }
