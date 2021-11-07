@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using cinema_reservations_api.DbContexts;
 using cinema_reservations_api.Model;
 using Microsoft.EntityFrameworkCore;
@@ -17,10 +17,19 @@ namespace cinema_reservations_api.Repository {
         public IEnumerable<Reservation> GetAllReservations() {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
+            DeleteAllOutdatedReservation();
             return db.Reservations
                 .Include("User")
                 .Include("Seance")
                 .ToList();
+        }
+
+        private void DeleteAllOutdatedReservation() {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
+            var outdatedReservations = db.Reservations.Where(reservation => reservation.IsTemporary && (reservation.CreatedTime - DateTime.Now).TotalMinutes > 5).ToList();
+            db.RemoveRange(outdatedReservations);
+            db.SaveChanges();
         }
 
         public Reservation CreateReservation(Reservation reservation) {
@@ -28,6 +37,8 @@ namespace cinema_reservations_api.Repository {
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
             var user = db.Users.Find(reservation.User.UserId);
             var seance = db.Seances.Find(reservation.Seance.SeanceId);
+            var createdTime = DateTime.Now;
+            reservation.CreatedTime = createdTime;
             reservation.User = user;
             reservation.Seance = seance;
             var createdReservation = db.Reservations
