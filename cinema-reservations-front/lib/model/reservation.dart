@@ -22,10 +22,7 @@ class Reservation {
     required this.isTemporary,
   });
 
-  factory Reservation.fromJson(Map<String, dynamic> json) {
-    print(json);
-    return _$ReservationFromJson(json);
-  }
+  factory Reservation.fromJson(Map<String, dynamic> json) => _$ReservationFromJson(json);
 
   Map<String, dynamic> toJson() => _$ReservationToJson(this);
 }

@@ -19,6 +19,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    Provider.of<AppState>(context, listen: false).startFetching();
     runPostFrame(() async => Provider.of<AppState>(context, listen: false).fetchHomePageData());
   }
 

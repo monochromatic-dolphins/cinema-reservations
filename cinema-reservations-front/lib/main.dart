@@ -55,7 +55,5 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> _checkIfLoggedIn(VRedirector vRedirector, bool isLoggedIn, AppState state) async {
-  final users = await state.users;
-  print(users);
   if (!isLoggedIn) vRedirector.to(Routes.login);
 }

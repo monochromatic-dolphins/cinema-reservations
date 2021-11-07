@@ -25,8 +25,8 @@ abstract class ApiClient {
   @GET(Apis.users)
   Future<List<User>> getUsers();
 
-  @GET(Apis.users)
-  Future<void> updateUser(@Body() User user);
+  @POST(Apis.users)
+  Future<User> updateUser(@Body() User user);
 
   // Movies
 
@@ -53,7 +53,7 @@ abstract class ApiClient {
   Future<Reservation> createReservation(@Body() Reservation reservation);
 
   @POST('${Apis.reservations}/confirm/{reservationId}')
-  Future<Reservation> confirmReservation(@Path('reservationId') int reservationId);
+  Future<void> confirmReservation(@Path('reservationId') int reservationId);
 
   // Seances
 

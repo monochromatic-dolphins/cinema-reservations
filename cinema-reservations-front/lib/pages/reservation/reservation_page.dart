@@ -27,6 +27,7 @@ class _ReservationPageState extends State<ReservationPage> {
   @override
   void initState() {
     super.initState();
+    Provider.of<AppState>(context, listen: false).startFetching();
     runPostFrame(() async => Provider.of<AppState>(context, listen: false)
         .fetchReservationPageData());
   }
@@ -41,11 +42,12 @@ class _ReservationPageState extends State<ReservationPage> {
         child: Consumer<AppState>(
           builder: (context, state, _) {
             if (state.isFetching) {
+              print('loading');
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
-
+            print('loaded');
             final seance = state.seances.firstWhere(
                 (element) => element.seanceId.toString() == seanceId);
             final reservations = state.reservations
@@ -55,7 +57,8 @@ class _ReservationPageState extends State<ReservationPage> {
             final seatsCount =
                 seance.cinemaHall!.seats * seance.cinemaHall!.rows;
             if (_selectedSeats == null)
-              _selectedSeats = _initSelectedSeats(seance, reservations);
+              _selectedSeats =
+                  _initSelectedSeats(seance, reservations, state.user!.userId);
 
             return Center(
               child: Container(
@@ -88,8 +91,8 @@ class _ReservationPageState extends State<ReservationPage> {
                             (index / seance.cinemaHall!.seats).floor();
 
                         return InkWell(
-                          onTap: () => _temporaryReservation(context,
-                              seance, currentSeat, currentRow),
+                          onTap: () => _temporaryReservation(
+                              context, seance, currentSeat, currentRow),
                           child: Card(
                             color: _seatColor(currentSeat, currentRow),
                             child: Center(
@@ -134,15 +137,21 @@ class _ReservationPageState extends State<ReservationPage> {
   }
 
   List<List<SeatState>> _initSelectedSeats(
-      Seance seance, List<Reservation> reservations) {
+    Seance seance,
+    List<Reservation> reservations,
+    int userId,
+  ) {
     return List.generate(
       seance.cinemaHall!.rows,
       (i) => List.generate(
         seance.cinemaHall!.seats,
         (j) {
-          if (reservations
-                  .firstWhereOrNull((res) => res.row == i && res.seat == j) !=
-              null) {
+          final r = reservations
+              .firstWhereOrNull((res) => res.row == i && res.seat == j);
+          if (r != null) {
+            if (r.isTemporary && r.user.userId == userId) {
+              return SeatState.selected;
+            }
             return SeatState.reserved;
           }
           return SeatState.free;
@@ -183,14 +192,14 @@ class _ReservationPageState extends State<ReservationPage> {
     });
   }
 
-  void _confirmReservation(
-      BuildContext context) async {
+  void _confirmReservation(BuildContext context) async {
     for (var i = 0; i < _pendingReservations.length; i++) {
       final result = await Provider.of<AppState>(context, listen: false)
           .confirmReservation(_pendingReservations[i]);
-      if (result == null) {
+      if (!result) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Something went wrong. Please try again later')),
+          SnackBar(
+              content: Text('Something went wrong. Please try again later')),
         );
         return;
       }
@@ -198,10 +207,14 @@ class _ReservationPageState extends State<ReservationPage> {
     showDialog(
         context: context,
         builder: (context) => SimpleDialog(
-              title: Text("Reservation finalized"),
+              contentPadding: EdgeInsets.all(25),
+              title: Text("Reservation finalized", style: Theme.of(context).textTheme.headline3,),
               children: [
                 Text("Reservation confirmed. See you in the cinema!"),
-                ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text("Ok")),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("Ok")),
               ],
             ));
   }

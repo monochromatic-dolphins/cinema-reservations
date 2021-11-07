@@ -29,8 +29,8 @@ class _AuthPageState extends State<AuthPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _emailController.text='jul.kul@com.pl';
-    _passwordController.text='zaq12wsx';
+    _emailController.text='admin';
+    _passwordController.text='admin';
   }
 
   @override
@@ -52,7 +52,7 @@ class _AuthPageState extends State<AuthPage> {
                   const SizedBox(height: 32),
                   TextFormField(
                     controller: _emailController,
-                    decoration: AppTheme.defaultTextInputStyle('Email'),
+                    decoration: AppTheme.defaultTextInputStyle('Login'),
                     validator: (value) => _validateEmail(value),
                   ),
                   const SizedBox(height: 16),
@@ -117,17 +117,14 @@ class _AuthPageState extends State<AuthPage> {
     if (value == null || value.isEmpty) {
       return 'Email cannot be empty';
     }
-    if (!isEmail(value)) {
-      return 'This is not a valid email';
+    if (!isAlphanumeric(value)) {
+      return 'This is not a valid login';
     }
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password cannot be empty';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters long';
     }
     if (!isAlphanumeric(value)) {
       return 'Password can contain only letters and numbers';

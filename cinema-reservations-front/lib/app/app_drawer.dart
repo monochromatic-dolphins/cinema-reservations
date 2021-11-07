@@ -7,20 +7,23 @@ class CustomDrawer {
     return Drawer(
       child: ListView(
         children: [
+          const SizedBox(height: 24),
+          Text('Menu', style: Theme.of(context).textTheme.headline1,textAlign: TextAlign.center,),
+          const SizedBox(height: 24),
           ListTile(
-            title: Text('Add movie'),
+            title: Text('Add movie', style: Theme.of(context).textTheme.headline3,),
             onTap: () => context.vRouter.to(Routes.crudMovie),
           ),
           ListTile(
-            title: Text('Add cinema hall'),
+            title: Text('Add cinema hall', style: Theme.of(context).textTheme.headline3,),
             onTap: () => context.vRouter.to(Routes.crudCinemaHall),
           ),
           ListTile(
-            title: Text('Add seance'),
+            title: Text('Add seance', style: Theme.of(context).textTheme.headline3,),
             onTap: () => context.vRouter.to(Routes.crudSeance),
           ),
           ListTile(
-            title: Text('Manage users'),
+            title: Text('Manage users', style: Theme.of(context).textTheme.headline3,),
             onTap: () => context.vRouter.to(Routes.crudUser),
           ),
         ],

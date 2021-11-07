@@ -1,11 +1,13 @@
 import 'package:cinema_reservations/app/app_drawer.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
+import 'package:cinema_reservations/app/routes.dart';
 import 'package:cinema_reservations/app/theme.dart';
 import 'package:cinema_reservations/model/app_state.dart';
 import 'package:cinema_reservations/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:vrouter/vrouter.dart';
 
 class CinemaHallCrudPage extends StatefulWidget {
   const CinemaHallCrudPage({Key? key}) : super(key: key);
@@ -100,5 +102,6 @@ class _CinemaHallCrudPageState extends State<CinemaHallCrudPage> {
       return;
     }
     Provider.of<AppState>(context, listen: false).createCinemaHall(int.parse(_seatsController.text), int.parse(_rowsController.text));
+    context.vRouter.to(Routes.main);
   }
 }

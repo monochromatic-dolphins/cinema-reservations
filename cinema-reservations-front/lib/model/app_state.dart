@@ -26,7 +26,8 @@ class AppState extends ChangeNotifier {
   Future<User?> logIn(String login, String password) async {
     LoginResponse response;
     try {
-      response = await _apiClient.login(LoginRequest(login: login, password: password));
+      response =
+      await _apiClient.login(LoginRequest(login: login, password: password));
     } catch (e) {
       return null;
     }
@@ -41,7 +42,8 @@ class AppState extends ChangeNotifier {
     LoginResponse response;
 
     try {
-      response = await _apiClient.registerUser(LoginRequest(login: login, password: password));
+      response = await _apiClient.registerUser(
+          LoginRequest(login: login, password: password));
     } catch (e) {
       return null;
     }
@@ -81,6 +83,10 @@ class AppState extends ChangeNotifier {
 
   bool get isFetching => _isFetching;
 
+  void startFetching() {
+    _isFetching = true;
+  }
+
   Future<void> fetchUserCrudPageData() async {
     _isFetching = true;
     notifyListeners();
@@ -112,34 +118,47 @@ class AppState extends ChangeNotifier {
   Future<void> fetchReservationPageData() async {
     _isFetching = true;
     notifyListeners();
+    print('fetching');
 
     _reservations = await _apiClient.getReservations();
     _isFetching = false;
     notifyListeners();
+    print('fetched');
   }
 
-  Future<void> changeUserRole(User user) async {
-    await _apiClient.updateUser(user);
+  Future<User?> changeUserRole(User user) async {
+    final u = User(userId: user.userId,
+        login: user.login,
+        role: user.role == Role.employee ? Role.regular : Role.employee);
+    final userres = await _apiClient.updateUser(u);
+    print(userres);
+    final index = _users.indexWhere((element) => element.userId == u.userId);
+    _users[index] = u;
+    notifyListeners();
   }
 
   void createCinemaHall(int seats, int rows) async {
-    await _apiClient.createCinemaHall(CinemaHall(cinemaHallId: 0, seats: seats, rows: rows));
+    await _apiClient.createCinemaHall(
+        CinemaHall(cinemaHallId: 0, seats: seats, rows: rows));
   }
 
   void createMovie(String title, int duration) async {
-    await _apiClient.createMovie(Movie(movieId: 0, title: title, duration: duration));
+    await _apiClient.createMovie(
+        Movie(movieId: 0, title: title, duration: duration));
   }
 
-  Future<Reservation?> confirmReservation(Reservation reservation) async {
+  Future<bool> confirmReservation(Reservation reservation) async {
     try {
-      return await _apiClient.confirmReservation(reservation.reservationId);
+      await _apiClient.confirmReservation(reservation.reservationId);
+      return true;
     } catch (e) {
-      return null;
+      print(e);
+      return false;
     }
   }
 
-  Future<Reservation?> createReservation(
-      Seance seance, int seat, row, bool isTemporary) async {
+  Future<Reservation?> createReservation(Seance seance, int seat, row,
+      bool isTemporary) async {
     final reservation = Reservation(
       reservationId: 0,
       user: _user!,
@@ -155,11 +174,9 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<Seance> createSeance(
-    CinemaHall selectedHall,
-    Movie selectedMovie,
-    DateTime selectedDate,
-  ) async {
+  Future<Seance> createSeance(CinemaHall selectedHall,
+      Movie selectedMovie,
+      DateTime selectedDate,) async {
     return await _apiClient.createSeance(
       Seance(
           seanceId: 0,

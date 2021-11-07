@@ -62,17 +62,18 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<void> updateUser(user) async {
+  Future<User> updateUser(user) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(user.toJson());
-    await _dio.fetch<void>(_setStreamType<void>(
-        Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<User>(
+        Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
             .compose(_dio.options, '/users',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    return null;
+    final value = User.fromJson(_result.data!);
+    return value;
   }
 
   @override
@@ -125,11 +126,11 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<CinemaHall> createCinemaHall(reservation) async {
+  Future<CinemaHall> createCinemaHall(cinemaHall) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(reservation.toJson());
+    _data.addAll(cinemaHall.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<CinemaHall>(
             Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
@@ -174,18 +175,16 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<Reservation> confirmReservation(reservationId) async {
+  Future<void> confirmReservation(reservationId) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<Reservation>(
-            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
-                .compose(_dio.options, '/reservations/confirm/$reservationId',
-                    queryParameters: queryParameters, data: _data)
-                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = Reservation.fromJson(_result.data!);
-    return value;
+    await _dio.fetch<void>(_setStreamType<void>(
+        Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+            .compose(_dio.options, '/reservations/confirm/$reservationId',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    return null;
   }
 
   @override

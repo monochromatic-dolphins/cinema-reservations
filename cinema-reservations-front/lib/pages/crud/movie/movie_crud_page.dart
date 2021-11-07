@@ -1,11 +1,13 @@
 import 'package:cinema_reservations/app/app_drawer.dart';
 import 'package:cinema_reservations/app/custom_app_bar.dart';
+import 'package:cinema_reservations/app/routes.dart';
 import 'package:cinema_reservations/app/theme.dart';
 import 'package:cinema_reservations/model/app_state.dart';
 import 'package:cinema_reservations/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:vrouter/vrouter.dart';
 
 class MovieCrudPage extends StatefulWidget {
   const MovieCrudPage({Key? key}) : super(key: key);
@@ -60,7 +62,7 @@ class _MovieCrudPageState extends State<MovieCrudPage> {
                       }
                       try {
                         final result = int.parse(value);
-                        if (result < 1 || result > 15) {
+                        if (result < 1 || result > 450) {
                           return 'Value must be between 1 and 450';
                         }
                       } catch (e) {
@@ -88,5 +90,6 @@ class _MovieCrudPageState extends State<MovieCrudPage> {
       return;
     }
     Provider.of<AppState>(context, listen: false).createMovie(_titleController.text, int.parse(_durationController.text));
+    context.vRouter.to(Routes.main);
   }
 }

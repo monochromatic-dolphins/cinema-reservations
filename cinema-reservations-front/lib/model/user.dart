@@ -3,8 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user.g.dart';
 
 class Role {
-  static const String employee = 'employee';
-  static const String regular = 'regular';
+  static const String employee = 'ADMIN';
+  static const String regular = 'USER';
 }
 
 @JsonSerializable()

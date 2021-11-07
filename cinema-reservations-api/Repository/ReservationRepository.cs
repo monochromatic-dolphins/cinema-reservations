@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace cinema_reservations_api.Repository {
     public class ReservationRepository {
-
         private readonly IServiceScopeFactory _scopeFactory;
 
         public ReservationRepository(IServiceScopeFactory scopeFactory) {
             _scopeFactory = scopeFactory;
         }
+
         public IEnumerable<Reservation> GetAllReservations() {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
@@ -27,7 +27,8 @@ namespace cinema_reservations_api.Repository {
         private void DeleteAllOutdatedReservation() {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
-            var outdatedReservations = db.Reservations.Where(reservation => reservation.IsTemporary && (reservation.CreatedTime - DateTime.Now).TotalMinutes > 5).ToList();
+            var outdatedReservations = db.Reservations.Where(reservation =>
+                reservation.IsTemporary && (DateTime.Now - reservation.CreatedTime).TotalMinutes > 1).ToList();
             db.RemoveRange(outdatedReservations);
             db.SaveChanges();
         }
@@ -53,7 +54,9 @@ namespace cinema_reservations_api.Repository {
             var db = scope.ServiceProvider.GetRequiredService<InMemoryDbContext>();
             var reservation = db.Reservations.Find(id);
             reservation.IsTemporary = false;
-            var confirmedReservation = db.Reservations.Update(reservation).Entity;
+            var confirmedReservation = db.Reservations
+                .Update(reservation)
+                .Entity;
             db.SaveChanges();
             return confirmedReservation;
         }
